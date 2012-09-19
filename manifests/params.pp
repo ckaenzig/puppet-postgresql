@@ -62,12 +62,22 @@ class postgresql::params {
     default: { fail "PostgreSQL ${postgresql_version} is not supported by this module!" }
   }
 
-  $data_dir = $postgresql_data_dir ? {
-    '' => $operatingsystem ? {
-      /^(RedHat|CentOS)$/ => '/var/lib/pgsql',
-      /^(Debian|Ubuntu)$/ => '/var/lib/postgresql',
-    },
-    default => $postgresql_data_dir,
+  case $operatingsystem {
+    /^(RedHat|CentOS)$/: {
+      $cluster_name = 'data'
+      $data_dir = "/var/lib/pgsql/${cluster_name}"
+      $conf_dir = $data_dir
+      $pg_hba_conf_path = "${conf_dir}/pg_hba.conf"
+      $postgresql_conf_path = "${conf_dir}/postgresql.conf"
+    }
+    /^(Debian|Ubuntu)$/: {
+      $cluster_name = 'main'
+      $data_dir = "/var/lib/postgresql/${version}/${cluster_name}"
+      $conf_dir = "/etc/postgresql/${version}/${cluster_name}"
+      $pg_hba_conf_path = "${conf_dir}/pg_hba.conf"
+      $postgresql_conf_path = "${conf_dir}/postgresql.conf"
+    }
+    default: { fail "${::operatingsystem} is not yet supported!" }
   }
 
 }
