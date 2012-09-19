@@ -30,20 +30,16 @@ class postgresql::debian inherits postgresql::base {
   }
 
   exec {"drop initial cluster":
-    command     => "pg_dropcluster --stop ${postgresql::params::version} main",
+    command     => "pg_dropcluster --stop ${postgresql::params::version} ${postgresql::params::cluster_name}",
     onlyif      => "test \$(su -c 'psql -lx' postgres |awk '/Encoding/ {printf tolower(\$3)}') = 'sql_asciisql_asciisql_ascii'",
     timeout     => 60,
     environment => "PWD=/",
-    before      => Postgresql::Cluster["main"],
+    before      => Postgresql::Cluster[$postgresql::params::data_dir],
   }
 
-  postgresql::cluster {"main":
-    ensure      => present,
-    clustername => "main",
-    version     => "${postgresql::params::version}",
-    encoding    => "UTF8",
-    data_dir    => "${postgresql::params::data_dir}",
-    require     => [Package["postgresql"], Exec["drop initial cluster"]],
+  postgresql::cluster {$postgresql::params::data_dir:
+    ensure  => present,
+    require => [Package["postgresql"], Exec["drop initial cluster"]],
   }
 
   Postgresql::Conf {
@@ -53,9 +49,9 @@ class postgresql::debian inherits postgresql::base {
 
   # A few default postgresql settings without which pg_dropcluster can't run.
   postgresql::conf {
-    'data_directory':        value => "${postgresql::params::data_dir}/${postgresql::params::version}/main";
-    'hba_file':              value => "/etc/postgresql/${postgresql::params::version}/main/pg_hba.conf";
-    'ident_file':            value => "/etc/postgresql/${postgresql::params::version}/main/pg_ident.conf";
+    'data_directory':        value => "${postgresql::params::data_dir}";
+    'hba_file':              value => "${postgresql::params::pg_hba_conf_path";
+    'ident_file':            value => "${postgresql::params::conf_dir}/pg_ident.conf";
     'external_pid_file':     value => "/var/run/postgresql/${postgresql::params::version}-main.pid";
     'unix_socket_directory': value => '/var/run/postgresql';
     'ssl':                   value => 'true';
