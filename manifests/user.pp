@@ -15,6 +15,8 @@ define postgresql::user(
   $port='5432', 
   $user='postgres') {
 
+  include postgresql::params
+
   $pgpass = $password ? {
     false   => "",
     default => "$password",
@@ -50,7 +52,7 @@ define postgresql::user(
         },
         user    => "postgres",
         unless  => "/usr/local/sbin/pp-postgresql-user.sh '${connection}' checkuser '${name}'",
-        require => Postgresql::Cluster["main"],
+        require => Postgresql::Cluster[$postgresql::params::data_dir],
       }
 
       exec { "Set SUPERUSER attribute for postgres user $name":
@@ -96,7 +98,7 @@ define postgresql::user(
         command => "/usr/local/sbin/pp-postgresql-user.sh '${connection}' dropuser '${name}'",
         user    => "postgres",
         onlyif  => "/usr/local/sbin/pp-postgresql-user.sh '${connection}' checkuser '${name}'",
-        require => Postgresql::Cluster["main"],
+        require => Postgresql::Cluster[$postgresql::params::data_dir],
       }
     }
 
