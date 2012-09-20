@@ -31,7 +31,7 @@ define postgresql::conf ($ensure='present', $value=undef, $path=false) {
   include postgresql::params
 
   $target = $path ? {
-    false   => $postgresql::params::pg_hba_conf_path,
+    false   => $postgresql::params::postgresql_conf_path,
     default => $path,
   }
 
