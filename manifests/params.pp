@@ -65,14 +65,16 @@ class postgresql::params {
   case $operatingsystem {
     /^(RedHat|CentOS)$/: {
       $cluster_name = 'data'
-      $data_dir = "/var/lib/pgsql/${cluster_name}"
+      $base_dir = '/var/lib/pgsql'
+      $data_dir = "${base_dir}/${cluster_name}"
       $conf_dir = $data_dir
       $pg_hba_conf_path = "${conf_dir}/pg_hba.conf"
       $postgresql_conf_path = "${conf_dir}/postgresql.conf"
     }
     /^(Debian|Ubuntu)$/: {
       $cluster_name = 'main'
-      $data_dir = "/var/lib/postgresql/${version}/${cluster_name}"
+      $base_dir = '/var/lib/postgresql'
+      $data_dir = "${base_dir}/${version}/${cluster_name}"
       $conf_dir = "/etc/postgresql/${version}/${cluster_name}"
       $pg_hba_conf_path = "${conf_dir}/pg_hba.conf"
       $postgresql_conf_path = "${conf_dir}/postgresql.conf"
