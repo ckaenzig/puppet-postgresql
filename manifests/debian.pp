@@ -34,11 +34,12 @@ class postgresql::debian inherits postgresql::base {
     onlyif      => "test \$(su -c 'psql -lx' postgres |awk '/Encoding/ {printf tolower(\$3)}') = 'sql_asciisql_asciisql_ascii'",
     timeout     => 60,
     environment => "PWD=/",
-    before      => Postgresql::Cluster[$postgresql::params::data_dir],
+    before      => Postgresql::Cluster[$postgresql::params::cluster_name],
   }
 
-  postgresql::cluster {$postgresql::params::data_dir:
+  postgresql::cluster {$postgresql::params::cluster_name:
     ensure  => present,
+    version => $postgresql::params::version,
     require => [Package["postgresql"], Exec["drop initial cluster"]],
   }
 
@@ -49,7 +50,7 @@ class postgresql::debian inherits postgresql::base {
   # A few default postgresql settings without which pg_dropcluster can't run.
   postgresql::conf {
     'data_directory':        value => "${postgresql::params::data_dir}";
-    'hba_file':              value => "${postgresql::params::pg_hba_conf_path";
+    'hba_file':              value => "${postgresql::params::pg_hba_conf_path}";
     'ident_file':            value => "${postgresql::params::conf_dir}/pg_ident.conf";
     'external_pid_file':     value => "/var/run/postgresql/${postgresql::params::version}-main.pid";
     'unix_socket_directory': value => '/var/run/postgresql';
