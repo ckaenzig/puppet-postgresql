@@ -6,7 +6,8 @@ Create a new PostgreSQL cluster
 
 */
 define postgresql::cluster (
-  $ensure,
+  $version,
+  $ensure   = 'present',
   $encoding = 'UTF8'
 ) {
 
@@ -15,34 +16,29 @@ define postgresql::cluster (
   case $ensure {
     present: {
 
-      file {$name:
-        ensure  => directory,
-        owner   => 'postgres',
-        group   => 'postgres',
-        mode    => '0755',
-        require => [Package['postgresql'], User['postgres']],
+      file {"${postgresql::params::base_dir}/${version}/${name}/server.key":
+        ensure  => link,
+        target  => '/etc/ssl/private/ssl-cert-snakeoil.key',
+        require => Exec["pg_createcluster_${version}_${name}"],
       }
 
-      file {"${postgresql::params::conf_dir}/server.key":
-        ensure => link,
-        target => "${postgresql::params::conf_dir}/ssl-cert-snakeoil.key",
+      file {"${postgresql::params::base_dir}/${version}/${name}/server.crt":
+        ensure  => link,
+        target  => '/etc/ssl/certs/ssl-cert-snakeoil.pem',
+        require => Exec["pg_createcluster_${version}_${name}"],
       }
 
-      file {"${postgresql::params::conf_dir}/server.crt":
-        ensure => link,
-        target => '/etc/ssl/certs/ssl-cert-snakeoil.pem',
-      }
-
-      exec {"pg_createcluster --start -e ${encoding} -u ${uid} -g ${gid} -d ${postgresql::params::data_dir} ${postgresql::params::version} ${postgresql::params::cluster_name}":
-        unless  => "pg_lsclusters -h | awk '{ print \$1,\$2; }' | egrep '^${postgresql::params::version} ${postgresql::params::cluster_name}\$'",
-        require => File[$name],
+      exec {"pg_createcluster_${version}_${name}":
+        command => "pg_createcluster --start -e ${encoding} -u postgres -g postgres -d ${postgresql::params::base_dir}/${version}/${name} ${version} ${name}",
+        unless  => "pg_lsclusters -h | awk '{ print \$1,\$2; }' | egrep '^${version} ${name}\$'",
+        require => File[$postgresql::params::base_dir],
       }
 
     }
 
     absent: {
-      exec {"pg_dropcluster --stop ${postgresql::params::version} ${postgresql::params::cluster_name}":
-        onlyif  => "pg_lsclusters -h | awk '{ print \$1,\$2,\$6; }' | egrep '^${postgresql::params::version} ${postgresql::params::cluster_name} ${postgresql::params::data_dir}\$'",
+      exec {"pg_dropcluster --stop ${version} ${name}":
+        onlyif  => "pg_lsclusters -h | awk '{ print \$1,\$2,\$6; }' | egrep '^${version} ${name} ${postgresql::params::base_dir}/${version}/${name}\$'",
         require => Service['postgresql'],
       }
     }
