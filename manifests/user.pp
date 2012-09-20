@@ -52,7 +52,7 @@ define postgresql::user(
         },
         user    => "postgres",
         unless  => "/usr/local/sbin/pp-postgresql-user.sh '${connection}' checkuser '${name}'",
-        require => Postgresql::Cluster[$postgresql::params::data_dir],
+        require => Postgresql::Cluster[$postgresql::params::cluster_name],
       }
 
       exec { "Set SUPERUSER attribute for postgres user $name":
@@ -98,7 +98,7 @@ define postgresql::user(
         command => "/usr/local/sbin/pp-postgresql-user.sh '${connection}' dropuser '${name}'",
         user    => "postgres",
         onlyif  => "/usr/local/sbin/pp-postgresql-user.sh '${connection}' checkuser '${name}'",
-        require => Postgresql::Cluster[$postgresql::params::data_dir],
+        require => Postgresql::Cluster[$postgresql::params::cluster_name],
       }
     }
 
