@@ -8,6 +8,8 @@ shared by the different distributions
 */
 class postgresql::base {
 
+  include postgresql::params
+
   user { "postgres":
     ensure  => present,
     require => Package["postgresql"],
@@ -20,6 +22,14 @@ class postgresql::base {
     },
     ensure => present,
     notify => undef,
+  }
+
+  file {$postgresql::params::base_dir:
+    ensure  => directory,
+    owner   => 'postgres',
+    group   => 'postgres',
+    mode    => '0755',
+    require => [Package['postgresql'], User['postgres']],
   }
 
   # lens included upstream since augeas 0.7.4
