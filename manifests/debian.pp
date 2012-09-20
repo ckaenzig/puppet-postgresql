@@ -43,7 +43,6 @@ class postgresql::debian inherits postgresql::base {
   }
 
   Postgresql::Conf {
-    pgver  => "${postgresql::params::version}",
     before => Exec["drop initial cluster"],
   }
 
