@@ -26,7 +26,7 @@ class postgresql::params {
         /^(Debian|Ubuntu)$/ : {
           case $::lsbdistcodename {
             'lenny': {
-              if $postgresql_version == '8.3' {
+              if $postgresql_version =~ /^(8.[34])$/ {
                 $version = $postgresql_version
               } else {
                 fail "version ${postgresql_version} is not supported for ${::operatingsystem} ${::lsbdistcodename}!"
