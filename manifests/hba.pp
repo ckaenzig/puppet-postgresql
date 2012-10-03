@@ -105,10 +105,10 @@ define postgresql::hba (
         context => "/files/${postgresql::params::conf_dir}/",
         changes => $changes,
         onlyif  => "match ${xpath} size == 0",
-        notify  => Exec["reload postgresql ${postgresql::params::version}"],
+        notify  => Exec['reload_postgresql'],
         require => $require_lens ? {
-          false => Package["postgresql-${postgresql::params::version}"],
-          true  => [Package["postgresql-${postgresql::params::version}"], File["${lpath}/pg_hba.aug"]],
+          false => Package['postgresql'],
+          true  => [Package['postgresql'], File["${lpath}/pg_hba.aug"]],
         },
         load_path => $lpath,
       }
@@ -118,7 +118,7 @@ define postgresql::hba (
           context => "/files/${postresql::params::conf_dir}/",
           changes => "set ${xpath}/method/option ${option}",
           onlyif  => "match ${xpath}/method/option size == 0",
-          notify  => Exec["reload postgresql ${postgresql::params::version}"],
+          notify  => Exec['reload_postgresql'],
           require => $require_lens ? {
             false => Augeas["set pg_hba ${name}"],
             true  => [Augeas["set pg_hba ${name}"], File["${lpath}/pg_hba.aug"]],
@@ -133,10 +133,10 @@ define postgresql::hba (
         context => "/files/${postgresql::params::conf_dir}/",
         changes => "rm ${xpath}",
         onlyif  => "match ${xpath} size == 1",
-        notify  => Exec["reload postgresql ${postgresql::params::version}"],
+        notify  => Exec['reload_postgresql'],
         require => $require_lens ? {
-          false => Package["postgresql-${postgresql::params::version}"],
-          true  => [Package["postgresql-${postgresql::params::version}"], File["${lpath}/pg_hba.aug"]],
+          false => Package['postgresql'],
+          true  => [Package['postgresql'], File["${lpath}/pg_hba.aug"]],
         },
         load_path => $lpath,
       }

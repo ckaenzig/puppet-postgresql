@@ -28,7 +28,7 @@ class postgresql::base {
     ensure  => directory,
     owner   => 'postgres',
     group   => 'postgres',
-    mode    => '0755',
+    mode    => undef,
     require => [Package['postgresql'], User['postgres']],
   }
 
@@ -39,6 +39,11 @@ class postgresql::base {
   augeas::lens { 'pg_hba':
     ensure      => $lens_ensure,
     lens_source => 'puppet:///modules/postgresql/pg_hba.aug',
+  }
+
+  exec {'reload_postgresql':
+    refreshonly => true,
+    command     => '/etc/init.d/postgresql reload',
   }
 
 }

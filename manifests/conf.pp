@@ -45,7 +45,7 @@ define postgresql::conf ($ensure='present', $value=undef, $path=false) {
 
     default: {
       Pgconf {
-        notify => Exec["reload postgresql ${postgresql::params::version}"],
+        notify => Exec['reload_postgresql'],
       }
     }
 
@@ -59,7 +59,7 @@ define postgresql::conf ($ensure='present', $value=undef, $path=false) {
         ensure  => $ensure,
         target  => $target,
         value   => $value,
-        require => Package["postgresql-${postgresql::params::version}"],
+        require => Package['postgresql'],
       }
     }
 
