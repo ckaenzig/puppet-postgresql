@@ -20,6 +20,10 @@ class postgresql::debian inherits postgresql::base {
     groups => ['ssl-cert'],
   }
 
+  File[$postgresql::params::base_dir] {
+    mode => '0755',
+  }
+
   package {[
     "postgresql-client-${postgresql::params::version}",
     "postgresql-common",
@@ -66,9 +70,8 @@ class postgresql::debian inherits postgresql::base {
       require   => Package['postgresql'],
     }
 
-    exec {"reload postgresql ${postgresql::params::version}":
-      refreshonly => true,
-      command     => "/etc/init.d/postgresql-${postgresql::params::version} reload",
+    Exec['reload_postgresql'] {
+      command => "/etc/init.d/postgresql-${postgresql::params::version} reload",
     }
 
   } else {
@@ -83,9 +86,8 @@ class postgresql::debian inherits postgresql::base {
       require   => Package['postgresql-common'],
     }
 
-    exec {"reload postgresql ${postgresql::params::version}":
-      refreshonly => true,
-      command     => "/etc/init.d/postgresql reload ${postgresql::params::version}",
+    Exec['reload_postgresql'] {
+      command => "/etc/init.d/postgresql reload ${postgresql::params::version}",
     }
   }
 

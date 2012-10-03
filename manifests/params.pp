@@ -64,6 +64,10 @@ class postgresql::params {
 
   case $operatingsystem {
     /^(RedHat|CentOS)$/: {
+      $oom_adj = $postgresql_oom_adj ? {
+        ''      => 0,
+        default => $postgresql_oom_adj,
+      }
       $cluster_name = 'data'
       $base_dir = $postgresql_base_dir ? {
         ''      => '/var/lib/pgsql',
