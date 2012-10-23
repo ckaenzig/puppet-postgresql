@@ -60,13 +60,13 @@ define postgresql::hba (
 
     'local': {
       $changes = [ # warning: order matters !
-        "set /01/type ${type}",
-        "set /01/database ${database}",
-        "set /01/user ${user}",
-        "set /01/method ${method}",
+        "set pg_hba.conf/01/type ${type}",
+        "set pg_hba.conf/01/database ${database}",
+        "set pg_hba.conf/01/user ${user}",
+        "set pg_hba.conf/01/method ${method}",
       ]
 
-      $xpath = "/*[type='${type}'][database='${database}'][user='${user}'][method='${method}']"
+      $xpath = "pg_hba.conf/*[type='${type}'][database='${database}'][user='${user}'][method='${method}']"
     }
 
     'host', 'hostssl', 'hostnossl': {
@@ -75,14 +75,14 @@ define postgresql::hba (
       }
 
       $changes = [ # warning: order matters !
-        "set /01/type ${type}",
-        "set /01/database ${database}",
-        "set /01/user ${user}",
-        "set /01/address ${address}",
-        "set /01/method ${method}",
+        "set pg_hba.conf/01/type ${type}",
+        "set pg_hba.conf/01/database ${database}",
+        "set pg_hba.conf/01/user ${user}",
+        "set pg_hba.conf/01/address ${address}",
+        "set pg_hba.conf/01/method ${method}",
       ]
 
-      $xpath = "/*[type='${type}'][database='${database}'][user='${user}'][address='${address}'][method='${method}']"
+      $xpath = "pg_hba.conf/*[type='${type}'][database='${database}'][user='${user}'][address='${address}'][method='${method}']"
     }
 
     default: {
@@ -102,6 +102,7 @@ define postgresql::hba (
 
     'present': {
       augeas { "set pg_hba ${name}":
+        context => "/files/${postgresql::params::conf_dir}/",
         incl    => "${postgresql::params::conf_dir}/pg_hba.conf",
         lens    => 'Pg_Hba.lns',
         changes => $changes,
@@ -116,7 +117,8 @@ define postgresql::hba (
 
       if $option {
         augeas { "add option to pg_hba ${name}":
-          incl    => "${postresql::params::conf_dir}/pg_hba.conf",
+          context => "/files/${postresql::params::conf_dir}/",
+          incl    => "${postgresql::params::conf_dir}/pg_hba.conf",
           lens    => 'Pg_Hba.lns',
           changes => "set ${xpath}/method/option ${option}",
           onlyif  => "match ${xpath}/method/option size == 0",
@@ -132,7 +134,8 @@ define postgresql::hba (
 
     'absent': {
       augeas { "remove pg_hba ${name}":
-        incl    => "${postresql::params::conf_dir}/pg_hba.conf",
+        context => "/files/${postgresql::params::conf_dir}/",
+        incl    => "${postgresql::params::conf_dir}/pg_hba.conf",
         lens    => 'Pg_Hba.lns',
         changes => "rm ${xpath}",
         onlyif  => "match ${xpath} size == 1",
