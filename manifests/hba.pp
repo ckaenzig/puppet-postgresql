@@ -39,13 +39,13 @@ Example usage:
 
 */
 define postgresql::hba (
-  $type, 
-  $database, 
-  $user, 
-  $method, 
-  $ensure  = 'present', 
-  $address = false, 
-  $option  = false, 
+  $type,
+  $database,
+  $user,
+  $method,
+  $ensure  = 'present',
+  $address = false,
+  $option  = false,
   $path    = false
 ) {
 
@@ -90,40 +90,28 @@ define postgresql::hba (
     }
   }
 
-  if versioncmp($augeasversion, '0.7.3') < 0 {
-    $lpath = "/usr/share/augeas/lenses/contrib"
-    $require_lens = true
-  } else {
-    $lpath = undef
-    $require_lens = false
-  }
-
   case $ensure {
 
     'present': {
       augeas { "set pg_hba ${name}":
         context => "/files/${postgresql::params::conf_dir}/",
+        incl    => "${postgresql::params::conf_dir}/pg_hba.conf",
+        lens    => 'Pg_Hba.lns',
         changes => $changes,
         onlyif  => "match ${xpath} size == 0",
         notify  => Exec['reload_postgresql'],
-        require => $require_lens ? {
-          false => Package['postgresql'],
-          true  => [Package['postgresql'], File["${lpath}/pg_hba.aug"]],
-        },
-        load_path => $lpath,
+        require => Package['postgresql'],
       }
 
       if $option {
         augeas { "add option to pg_hba ${name}":
           context => "/files/${postresql::params::conf_dir}/",
+          incl    => "${postgresql::params::conf_dir}/pg_hba.conf",
+          lens    => 'Pg_Hba.lns',
           changes => "set ${xpath}/method/option ${option}",
           onlyif  => "match ${xpath}/method/option size == 0",
           notify  => Exec['reload_postgresql'],
-          require => $require_lens ? {
-            false => Augeas["set pg_hba ${name}"],
-            true  => [Augeas["set pg_hba ${name}"], File["${lpath}/pg_hba.aug"]],
-          },
-          load_path => $lpath,
+          require => Augeas["set pg_hba ${name}"],
         }
       }
     }
@@ -131,14 +119,12 @@ define postgresql::hba (
     'absent': {
       augeas { "remove pg_hba ${name}":
         context => "/files/${postgresql::params::conf_dir}/",
+        incl    => "${postgresql::params::conf_dir}/pg_hba.conf",
+        lens    => 'Pg_Hba.lns',
         changes => "rm ${xpath}",
         onlyif  => "match ${xpath} size == 1",
         notify  => Exec['reload_postgresql'],
-        require => $require_lens ? {
-          false => Package['postgresql'],
-          true  => [Package['postgresql'], File["${lpath}/pg_hba.aug"]],
-        },
-        load_path => $lpath,
+        require => Package['postgresql'],
       }
     }
 
