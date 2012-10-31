@@ -44,11 +44,10 @@ class postgresql::debian inherits postgresql::base {
   postgresql::cluster {$postgresql::params::cluster_name:
     ensure  => present,
     version => $postgresql::params::version,
-    require => [Package["postgresql"], Exec["drop initial cluster"]],
   }
 
   Postgresql::Conf {
-    before => Exec["drop initial cluster"],
+    require => Postgresql::Cluster[$postgresql::params::cluster_name],
   }
 
   # A few default postgresql settings without which pg_dropcluster can't run.
