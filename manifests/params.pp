@@ -15,6 +15,7 @@ class postgresql::params {
             'squeeze': { $version = '8.4' }
             'lucid':   { $version = '8.4' }
             'precise': { $version = '9.1' }
+            'quantal': { $version = '9.1' }
             default:   { fail "${::operatingsystem} ${::lsbdistcodename} is not yet supported!"}
           }
         }
