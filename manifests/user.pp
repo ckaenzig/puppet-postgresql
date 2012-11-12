@@ -103,7 +103,7 @@ define postgresql::user(
     }
 
     default: {
-      fail "Invalid 'ensure' value '$ensure' for postgres::user"
+      fail "Invalid 'ensure' value '${ensure}' for postgresql::user"
     }
   }
 }
