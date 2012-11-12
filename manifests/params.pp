@@ -47,7 +47,7 @@ class postgresql::params {
                 fail "version ${postgresql_version} is not supported for ${::operatingsystem} ${::lsbdistcodename}!"
               }
             }
-            'precise': {
+            /^(precise|quantal)$/: {
               if $postgresql_version == '9.1' {
                 $version = $postgresql_version
               } else {
