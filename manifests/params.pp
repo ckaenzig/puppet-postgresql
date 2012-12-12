@@ -13,6 +13,7 @@ class postgresql::params {
           case $::lsbdistcodename {
             'lenny':   { $version = '8.3' }
             'squeeze': { $version = '8.4' }
+            'wheezy':  { $version = '9.1' }
             'lucid':   { $version = '8.4' }
             'precise': { $version = '9.1' }
             'quantal': { $version = '9.1' }
@@ -35,6 +36,13 @@ class postgresql::params {
             }
             'squeeze': {
               if $postgresql_version =~ /^(8.4|9.0|9.1)$/ {
+                $version = $postgresql_version
+              } else {
+                fail "version ${postgresql_version} is not supported for ${::operatingsystem} ${::lsbdistcodename}!"
+              }
+            }
+            'wheezy': {
+              if $postgresql_version == '9.1' {
                 $version = $postgresql_version
               } else {
                 fail "version ${postgresql_version} is not supported for ${::operatingsystem} ${::lsbdistcodename}!"
