@@ -1,8 +1,6 @@
 class postgresql::redhat inherits postgresql::base {
 
-  include postgresql::params
-
-  File[$postgresql::params::base_dir] {
+  File[$postgresql::base_dir] {
     mode => '0700',
   }
 
@@ -10,12 +8,12 @@ class postgresql::redhat inherits postgresql::base {
     ensure  => present,
     owner   => 'root',
     group   => 'root',
-    content => "PG_OOM_ADJ=${postgresql::params::oom_adj}\n",
+    content => "PG_OOM_ADJ=${postgresql::oom_adj}\n",
   }
 
-  postgresql::cluster {$postgresql::params::cluster_name:
+  postgresql::cluster {$postgresql::cluster_name:
     ensure  => present,
-    version => $postgresql::params::version,
+    version => $postgresql::version,
     require => Package['postgresql'],
   }
 
@@ -24,7 +22,7 @@ class postgresql::redhat inherits postgresql::base {
     enable    => true,
     hasstatus => true,
     require   => [
-      Postgresql::Cluster[$postgresql::params::cluster_name],
+      Postgresql::Cluster[$postgresql::cluster_name],
       File['/etc/sysconfig/pgsql'],
     ]
   }

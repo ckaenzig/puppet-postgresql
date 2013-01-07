@@ -28,10 +28,8 @@ Example usage:
 */
 define postgresql::conf ($ensure='present', $value=undef, $path=false) {
 
-  include postgresql::params
-
   $target = $path ? {
-    false   => $postgresql::params::postgresql_conf_path,
+    false   => $postgresql::postgresql_conf_path,
     default => $path,
   }
 
