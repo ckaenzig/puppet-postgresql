@@ -50,7 +50,6 @@ define postgresql::user(
         },
         user    => "postgres",
         unless  => "/usr/local/sbin/pp-postgresql-user.sh '${connection}' checkuser '${name}'",
-        require => Postgresql::Cluster[$postgresql::cluster_name],
       }
 
       exec { "Set SUPERUSER attribute for postgres user $name":

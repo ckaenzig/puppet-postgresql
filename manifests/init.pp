@@ -63,4 +63,7 @@ class postgresql (
   # Include base
   include "postgresql::${ostype}"
 
+  # Relationships
+  Class["postgresql::${ostype}"] -> Postgresql::User <| |>
+  Class["postgresql::${ostype}"] -> Postgresql::Database <| |>
 }
