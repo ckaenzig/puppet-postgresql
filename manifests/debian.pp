@@ -10,6 +10,11 @@ class postgresql::debian inherits postgresql::base {
 
   include postgresql::client
 
+  # Checks
+  validate_string($postgresql::cluster_name, '$postgresql::cluster_name must be a string')
+  validate_re($postgresql::base_dir, '^/', '$postgresql::base_dir should be an absolute path')
+  validate_re($postgresql::version, '^[0-9]\.[0-9]$', '$postgresql::version is not valid')
+
   Package["postgresql"] {
     name   => "postgresql-${postgresql::version}",
     notify => Exec["drop initial cluster"],
