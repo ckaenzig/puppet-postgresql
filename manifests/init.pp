@@ -1,7 +1,8 @@
 class postgresql (
-  version  = $postgresql::params::default_version,
-  base_dir = $postgresql::params::default_base_dir,
-  oom_adj  = 0,
+  $version  = $postgresql::params::default_version,
+  $base_dir = $postgresql::params::default_base_dir,
+  $cluster_name = $postgresql::params::cluster_name,
+  $oom_adj  = 0,
 ) inherits postgresql::params {
 
   case $::osfamily {
