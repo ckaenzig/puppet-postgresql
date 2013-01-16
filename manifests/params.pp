@@ -1,102 +1,35 @@
 class postgresql::params {
 
-  case $postgresql_version {
-    '': {
-      case $::operatingsystem {
-        /^(RedHat|CentOS)$/ : {
-          case $::lsbmajdistrelease {
-            '6'    : { $version = '8.4' }
-            default: { fail "${::lsbmajdistrelease} is not yet supported!" }
-          }
-        }
-        /^(Debian|Ubuntu)$/ : {
-          case $::lsbdistcodename {
-            'lenny':   { $version = '8.3' }
-            'squeeze': { $version = '8.4' }
-            'wheezy':  { $version = '9.1' }
-            'lucid':   { $version = '8.4' }
-            'precise': { $version = '9.1' }
-            'quantal': { $version = '9.1' }
-            default:   { fail "${::operatingsystem} ${::lsbdistcodename} is not yet supported!"}
-          }
-        }
-        default: { fail "${::operatingsystem} is not yet supported!" }
-      }
-    }
-    /^(8.3|8.4|9.0|9.1)$/ : {
-      case $::operatingsystem {
-        /^(Debian|Ubuntu)$/ : {
-          case $::lsbdistcodename {
-            'lenny': {
-              if $postgresql_version =~ /^(8.[34])$/ {
-                $version = $postgresql_version
-              } else {
-                fail "version ${postgresql_version} is not supported for ${::operatingsystem} ${::lsbdistcodename}!"
-              }
-            }
-            'squeeze': {
-              if $postgresql_version =~ /^(8.4|9.0|9.1)$/ {
-                $version = $postgresql_version
-              } else {
-                fail "version ${postgresql_version} is not supported for ${::operatingsystem} ${::lsbdistcodename}!"
-              }
-            }
-            'wheezy': {
-              if $postgresql_version == '9.1' {
-                $version = $postgresql_version
-              } else {
-                fail "version ${postgresql_version} is not supported for ${::operatingsystem} ${::lsbdistcodename}!"
-              }
-            }
-            'lucid': {
-              if $postgresql_version == '8.4' {
-                $version = $postgresql_version
-              } else {
-                fail "version ${postgresql_version} is not supported for ${::operatingsystem} ${::lsbdistcodename}!"
-              }
-            }
-            /^(precise|quantal)$/: {
-              if $postgresql_version == '9.1' {
-                $version = $postgresql_version
-              } else {
-                fail "version ${postgresql_version} is not supported for ${::operatingsystem} ${::lsbdistcodename}!"
-              }
-            }
-            default: { fail "${::operatingsystem} ${::lsbdistcodename} is not yet supported!" }
-          }
-        }
-        default: { fail "${::operatingsystem} is not yet supported!" }
-      }
-    }
-    default: { fail "PostgreSQL ${postgresql_version} is not supported by this module!" }
+  $default_version = $::osfamily ? {
+    'RedHat' => $::lsbmajdistrelease ? {
+      '6'     => '8.4',
+      default => 'unsupported',
+    },
+    'Debian' => $::lsbdistcodename ? {
+      'lenny'   => '8.3',
+      'squeeze' => '8.4',
+      'wheezy'  => '9.1',
+      'lucid'   => '8.4',
+      'precise' => '9.1',
+      'quantal' => '9.1',
+      default   => 'unsupported',
+    },
+    default => 'unsupported',
   }
 
-  case $operatingsystem {
-    /^(RedHat|CentOS)$/: {
-      $oom_adj = $postgresql_oom_adj ? {
-        ''      => 0,
-        default => $postgresql_oom_adj,
-      }
+  if $default_version == 'unsupported' {
+    fail "${::operatingsystem} ${lsbdistrelease} is not yet supported"
+  }
+
+ 
+  case $::osfamily {
+    'RedHat': {
       $cluster_name = 'data'
-      $base_dir = $postgresql_base_dir ? {
-        ''      => '/var/lib/pgsql',
-        default => $postgresql_base_dir,
-      }
-      $data_dir = "${base_dir}/${cluster_name}"
-      $conf_dir = $data_dir
-      $pg_hba_conf_path = "${conf_dir}/pg_hba.conf"
-      $postgresql_conf_path = "${conf_dir}/postgresql.conf"
+      $default_base_dir = '/var/lib/pgsql'
     }
-    /^(Debian|Ubuntu)$/: {
+    'Debian': {
       $cluster_name = 'main'
-      $base_dir = $postgresql_base_dir ? {
-        ''      => '/var/lib/postgresql',
-        default => $postgresql_base_dir,
-      }
-      $data_dir = "${base_dir}/${version}/${cluster_name}"
-      $conf_dir = "/etc/postgresql/${version}/${cluster_name}"
-      $pg_hba_conf_path = "${conf_dir}/pg_hba.conf"
-      $postgresql_conf_path = "${conf_dir}/postgresql.conf"
+      $default_base_dir = '/var/lib/postgresql'
     }
     default: { fail "${::operatingsystem} is not yet supported!" }
   }

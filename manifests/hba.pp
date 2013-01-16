@@ -49,10 +49,8 @@ define postgresql::hba (
   $path    = false
 ) {
 
-  include postgresql::params
-
   $target = $path ? {
-    false   => $postgresql::params::pg_hba_conf_path,
+    false   => $postgresql::pg_hba_conf_path,
     default => $path,
   }
 
@@ -94,8 +92,8 @@ define postgresql::hba (
 
     'present': {
       augeas { "set pg_hba ${name}":
-        context => "/files/${postgresql::params::conf_dir}/",
-        incl    => "${postgresql::params::conf_dir}/pg_hba.conf",
+        context => "/files/${postgresql::conf_dir}/",
+        incl    => "${postgresql::conf_dir}/pg_hba.conf",
         lens    => 'Pg_Hba.lns',
         changes => $changes,
         onlyif  => "match ${xpath} size == 0",
@@ -105,8 +103,8 @@ define postgresql::hba (
 
       if $option {
         augeas { "add option to pg_hba ${name}":
-          context => "/files/${postresql::params::conf_dir}/",
-          incl    => "${postgresql::params::conf_dir}/pg_hba.conf",
+          context => "/files/${postresql::conf_dir}/",
+          incl    => "${postgresql::conf_dir}/pg_hba.conf",
           lens    => 'Pg_Hba.lns',
           changes => "set ${xpath}/method/option ${option}",
           onlyif  => "match ${xpath}/method/option size == 0",
@@ -118,8 +116,8 @@ define postgresql::hba (
 
     'absent': {
       augeas { "remove pg_hba ${name}":
-        context => "/files/${postgresql::params::conf_dir}/",
-        incl    => "${postgresql::params::conf_dir}/pg_hba.conf",
+        context => "/files/${postgresql::conf_dir}/",
+        incl    => "${postgresql::conf_dir}/pg_hba.conf",
         lens    => 'Pg_Hba.lns',
         changes => "rm ${xpath}",
         onlyif  => "match ${xpath} size == 1",

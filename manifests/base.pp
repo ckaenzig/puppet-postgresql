@@ -8,8 +8,6 @@ shared by the different distributions
 */
 class postgresql::base {
 
-  include postgresql::params
-
   user { "postgres":
     ensure  => present,
     require => Package["postgresql"],
@@ -24,7 +22,7 @@ class postgresql::base {
     notify => undef,
   }
 
-  file {$postgresql::params::base_dir:
+  file {$postgresql::base_dir:
     ensure  => directory,
     owner   => 'postgres',
     group   => 'postgres',
