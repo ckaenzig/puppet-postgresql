@@ -1,43 +1,52 @@
-/*
-== Definition: postgresql::hba
-
-Add/remove lines from pg_hba.conf file. NB: puppet reloads postgresql each time
-a change is made to pg_hba.conf using this definition.
-
-Parameters:
-- *ensure*: present/absent, default to present.
-- *type*: local/host/hostssl/hostnossl, mandatory.
-- *database*: database name or "all", mandatory.
-- *user*: username or "all", mandatory.
-- *address*: CIDR or IP-address, mandatory if type is host/hostssl/hostnossl.
-- *method*: auth-method, mandatory.
-- *option*: optional additional auth-method parameter.
-- *path*: path of the configuration file
-
-See also:
-http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html
-
-Example usage:
-
-  postgresql::hba { "access to database toto":
-    ensure   => present,
-    type     => 'local',
-    database => 'toto',
-    user     => 'all',
-    method   => 'ident',
-    option   => "map=toto",
-  }
-
-  postgresql::hba { "access to database tata":
-    ensure   => present,
-    type     => 'hostssl',
-    database => 'tata',
-    user     => 'www-data',
-    address  => '192.168.0.0/16',
-    method   => 'md5',
-  }
-
-*/
+# Definition: postgresql::hba
+#
+# Add/remove lines from pg_hba.conf file.
+# NB: puppet reloads postgresql each time a change is made
+# to pg_hba.conf using this definition.
+#
+# You must have declared the `postgresql` class before you use
+# this definition.
+#
+# Parameters:
+#   ['ensure']      - Whether the setting should be present or absent.
+#   ['type']        - local/host/hostssl/hostnossl, mandatory.
+#   ['database']    - The database name, or "all", mandatory.
+#   ['user']        - The user name, or "all", mandatory.
+#   ['address']     - CIDR or IP-address, mandatory if type is
+#                     host/hostssl/hostnossl.
+#   ['method']      - The auth method, mandatory.
+#   ['option']      - An optional additional auth method parameter.
+#   ['path']        - The path to the configuration file.
+#
+# Actions:
+# - Creates and manages a postgresql hba entry.
+#
+# Requires:
+# - `puppetlabs/stdlib`
+# - `augeas` with `pg_hba.aug` lens
+#
+# Sample Usage:
+#   postgresql::hba { "access to database toto":
+#     ensure   => present,
+#     type     => 'local',
+#     database => 'toto',
+#     user     => 'all',
+#     method   => 'ident',
+#     option   => "map=toto",
+#   }
+#
+#   postgresql::hba { "access to database tata":
+#     ensure   => present,
+#     type     => 'hostssl',
+#     database => 'tata',
+#     user     => 'www-data',
+#     address  => '192.168.0.0/16',
+#     method   => 'md5',
+#   }
+#
+# See also:
+#   http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html
+#
 define postgresql::hba (
   $type,
   $database,
