@@ -1,44 +1,63 @@
-/*
+# Class: postgresql::backup
+#
+# This class provides a way to set up backup for a postgresql cluster.
+# It will add a shell script based on the utility pg_dump to make
+# consitent backups each nights.
+#
+# You must have declared the `postgresql` class before you use
+# this class.
+#
+# Parameters:
+#   ['backup_dir']    - The directory to use for backups.
+#                       Defaults to /var/backups/pgsql.
+#   ['backup_format'] - The backup format to use.
+#                       Defaults to plain.
+#   ['user']          - The user to use to perform the backup.
+#                       Defaults to postgres.
+#
+# Actions:
+# - Creates and manages a postgresql cluster
+#
+# Requires:
+# - `puppetlabs/stdlib`
+#
+# Sample Usage:
+#   include postgresql::backup
+#
+class postgresql::backup (
+  $backup_dir = $postgresql_backupdir,
+  $backup_format = $postgresql_backupfmt,
+  $user = 'postgres',
+) {
 
-==Class: postgresql::backup
-
-This class will add a shell script based on the utility pg_dump to make 
-consitent backups each nights.
-
-Parameters:
- $postgresql_backupdir:
-   this global variable is used to set the default backup directory
-
-*/
-class postgresql::backup {
-
-  if ( ! $postgresql_backupdir ) {
-    $postgresql_backupdir = "/var/backups/pgsql"
+  $_backup_dir = $backup_dir ? {
+    ''      => '/var/backups/pgsql',
+    default => $backup_dir,
   }
 
   file {$postgresql_backupdir:
     ensure  => directory,
-    owner   => "postgres",
-    group   => "postgres",
-    mode    => 755,
-    require => [Package["postgresql"], User["postgres"]],
+    owner   => $user,
+    group   => $user,
+    mode    => '0755',
+    require => [Package['postgresql'], User[$user]],
   }
 
-  file { "/usr/local/bin/pgsql-backup.sh":
+  file { '/usr/local/bin/pgsql-backup.sh':
     ensure  => present,
     owner   => root,
     group   => root,
-    mode    => 755,
-    content => template("postgresql/pgsql-backup.sh.erb"),
-    require => File[$postgresql_backupdir],
+    mode    => '0755',
+    content => template('postgresql/pgsql-backup.sh.erb'),
+    require => File[$_backup_dir],
   }
 
-  cron { "pgsql-backup":
-    command => "/usr/local/bin/pgsql-backup.sh",
-    user    => "postgres",
+  cron { 'pgsql-backup':
+    command => '/usr/local/bin/pgsql-backup.sh',
+    user    => $user,
     hour    => 2,
     minute  => 0,
-    require => [User["postgres"], File["/usr/local/bin/pgsql-backup.sh"]],
+    require => [User[$user], File['/usr/local/bin/pgsql-backup.sh']],
   }
 
 }

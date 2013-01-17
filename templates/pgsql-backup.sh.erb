@@ -1,7 +1,7 @@
 #!/bin/sh
 
-BKPDIR="<%= has_variable?('postgresql_backupdir') ? postgresql_backupdir : '/var/backups/pgsql/' %>"
-BKPFMT="<%= has_variable?('postgresql_backupfmt') ? postgresql_backupfmt : 'plain' %>"
+BKPDIR="<%= has_variable?('_backup_dir') ? @_backup_dir : '/var/backups/pgsql/' %>"
+BKPFMT="<%= has_variable?('backup_format') ? @backup_format : 'plain' %>"
 TODAY=$(date +%F)
 DAY=$(date +%A |tr 'A-Z' 'a-z')
 MONTH=$(date +%B |tr 'A-Z' 'a-z')
