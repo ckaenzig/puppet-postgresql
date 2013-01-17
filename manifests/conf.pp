@@ -1,32 +1,41 @@
-/*
-== Definition: postgresql::conf
-
-Add/remove parameters from postgresql.conf file. NB: puppet reloads or restarts
-postgresql each time a change is made to postgresql.conf using this definition.
-
-Parameters:
-- *ensure*: present/absent, default to present.
-- *value*: value of this configuration parameter.
-- *path*: path of the configuration file
-
-This is just a wrapper around the pgconf type, in case one day we prefer to use
-augeas or Exec[sed] ;-)
-
-See also:
-http://www.postgresql.org/docs/current/static/config-setting.html
-
-Example usage:
-
-  postgresql::conf { "shared_buffers":
-    value => '128MB',
-  }
-
-  postgresql::conf { "fsync":
-    ensure => absent, # reset to default value
-  }
-
-*/
-define postgresql::conf ($ensure='present', $value=undef, $path=false) {
+# Definition: postgresql::conf
+#
+# Add/remove parameters from postgresql.conf file.
+# NB: puppet reloads or restarts postgresql each time a change is made
+# to postgresql.conf using this definition.
+#
+# Parameters:
+#   ['ensure'] - Whether the setting should be present or absent.
+#   ['value']  - The value of the configuration parameter.
+#   ['path']   - The path to the configuration file
+#
+# This is just a wrapper around the pgconf type,
+# in case one day we prefer to use augeas or Exec[sed] ;-)
+#
+# Actions:
+# - Creates and manages a postgresql configuration entry.
+#
+# Requires:
+# - `puppetlabs/stdlib`
+# - `camptocamp/pgconf`
+#
+# Sample usage:
+#   postgresql::conf { "shared_buffers":
+#     value => '128MB',
+#   }
+#
+#   postgresql::conf { "fsync":
+#     ensure => absent, # reset to default value
+#   }
+#
+# See also:
+#   http://www.postgresql.org/docs/current/static/config-setting.html
+#
+define postgresql::conf (
+  $ensure='present',
+  $value=undef,
+  $path=false,
+) {
 
   $target = $path ? {
     false   => $postgresql::postgresql_conf_path,
@@ -48,7 +57,6 @@ define postgresql::conf ($ensure='present', $value=undef, $path=false) {
     }
 
   }
-
 
   case $ensure {
 
