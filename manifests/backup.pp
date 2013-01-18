@@ -25,17 +25,12 @@
 #   include postgresql::backup
 #
 class postgresql::backup (
-  $backup_dir = $postgresql_backupdir,
-  $backup_format = $postgresql_backupfmt,
+  $backup_dir = '/var/backups/pgsql',
+  $backup_format = 'plain',
   $user = 'postgres',
 ) {
 
-  $_backup_dir = $backup_dir ? {
-    ''      => '/var/backups/pgsql',
-    default => $backup_dir,
-  }
-
-  file {$postgresql_backupdir:
+  file {$backup_dir:
     ensure  => directory,
     owner   => $user,
     group   => $user,
@@ -49,7 +44,7 @@ class postgresql::backup (
     group   => root,
     mode    => '0755',
     content => template('postgresql/pgsql-backup.sh.erb'),
-    require => File[$_backup_dir],
+    require => File[$backup_dir],
   }
 
   cron { 'pgsql-backup':
