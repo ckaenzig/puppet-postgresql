@@ -1,23 +1,54 @@
-/*
-
-==Definition: postgresql::user
-
-Create a new PostgreSQL user
-
-*/
+# Definition: postgresql::user
+#
+# This definition provides a way to manage postgresql users
+# associated to a postgresql cluster.
+#
+# You must have declared the `postgresql` class before you use
+# this definition.
+#
+# Parameters:
+#   ['ensure']      - Whether the user should be present or absent.
+#   ['password']    - Set the password.
+#                     Defaults to false.
+#   ['superuser']   - Whether the user is a superuser.
+#                     Defaults to false.
+#   ['createdb']    - Whether the user has rights to create new databases.
+#                     Defaults to false.
+#   ['createrole']  - Whether to user has rights to create new roles.
+#                     Defaults to false.
+#   ['hostname']    - The hostname to use to connect to the database.
+#                     Defaults to /var/run/postgresql.
+#   ['port']        - The port to use to connect to the database.
+#                     Defaults to 5432.
+#   ['user']        - The user to use to connect to the database.
+#                     Defaults to postgres
+#
+# Actions:
+# - Creates and manages a postgresql user
+#
+# Requires:
+# - `puppetlabs/stdlib`
+#
+# Sample Usage:
+#   postgresql::user {'foo':
+#     ensure    => present,
+#     superuser => true,
+#   }
+#
 define postgresql::user(
-  $ensure=present, 
-  $password=false, 
+  $ensure=present,
+  $password=false,
   $superuser=false,
   $createdb=false,
   $createrole=false,
-  $hostname='/var/run/postgresql', 
-  $port='5432', 
-  $user='postgres') {
+  $hostname='/var/run/postgresql',
+  $port='5432',
+  $user='postgres',
+) {
 
   $pgpass = $password ? {
-    false   => "",
-    default => "$password",
+    false   => '',
+    default => $password,
   }
 
   # Connection string
@@ -26,7 +57,7 @@ define postgresql::user(
   # Quite aweful 0.25.x backward compatibility hack, used only in the file
   # definition below and will be removed as soon as possible
   if $module_name == '' {
-    $module_name = "postgresql"
+    $module_name = 'postgresql'
   }
 
   # Script we use to manage postgresql users
@@ -34,7 +65,7 @@ define postgresql::user(
     file { '/usr/local/sbin/pp-postgresql-user.sh':
       ensure => present,
       source => "puppet:///modules/${module_name}/pp-postgresql-user.sh",
-      mode   => 0755,
+      mode   => '0755',
     }
   }
 
@@ -95,7 +126,6 @@ define postgresql::user(
         command => "/usr/local/sbin/pp-postgresql-user.sh '${connection}' dropuser '${name}'",
         user    => "postgres",
         onlyif  => "/usr/local/sbin/pp-postgresql-user.sh '${connection}' checkuser '${name}'",
-        require => Postgresql::Cluster[$postgresql::cluster_name],
       }
     }
 
