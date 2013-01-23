@@ -112,7 +112,7 @@ define postgresql::hba (
 
       if $option {
         augeas { "add option to pg_hba ${name}":
-          context => "/files/${postresql::conf_dir}/",
+          context => "/files/${postgresql::conf_dir}/",
           incl    => "${postgresql::conf_dir}/pg_hba.conf",
           lens    => 'Pg_Hba.lns',
           changes => "set ${xpath}/method/option ${option}",
